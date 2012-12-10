@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+
+# Don't forget to CHMOD all hooks with permission rwxr-x--- (0750)
+# $ chmod 0750 post-receive* 
+
+/var/lib/gitolite/.gitolite/hooks/common/post-receive.redmine
+
+# Other post-receive hooks
+# /var/lib/gitolite/.gitolite/hooks/common/post-receive.email
+# ...
