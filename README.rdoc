@@ -17,44 +17,57 @@ That approach works perfectly fine, but is a bit heavy-handed and cumbersome. Th
    1. Follow the plugin installation procedure at http://www.redmine.org/wiki/redmine/Plugins.
    2. Restart your Redmine.
    3. If you already have a local Git repository set up and working from Redmine go to step 3, otherwise continue at step 2.
+
 2. Adding a Git repository to a project (note, this should work whether you want to use Redmine Github Hook or not). Simply follow the instructions at http://www.redmine.org/wiki/redmine/HowTo_keep_in_sync_your_git_repository_for_redmine . If the repository was cloned with "clone --mirror" please turn on the option "all_branches" in the plugin config page!
 
+3. Restart Redmine
 
-3. Connecting Github to Redmine
-   1. Go to the repository Admin interface on Github.
-   2. Under "Service Hooks" add a new "Post-Receive URL" of the format: "[redmine_installation_url]/github_hook" (for example "http://example.com/github_hook").
-      1. By default, Github Hook assumes your Github repository name is the same as the project identifier in your Redmine installation. If this is not the case, you can specify the actual Redmine project identifier in the Post-Receive URL by using the format "[redmine_installation_url]/github_hook?project_id=[identifier]" (for example "http://example.com/github_hook?project_id=my_project").
+4. Configure (two possibilities):
 
-That's it. Github will now send a HTTP POST to the Redmine Github Hook plugin whenever changes are pushed to Github. The plugin then takes care of pulling the changes to the local repository and updating the Redmine database with them.
+A. Gitlab
+   1. Go to the repository interface on Gitlab.
+   2. Under "Web Hooks" add a new "Post-Receive URL" of the format: 
+      * [redmine_installation_url]/gitolite_hook?project_id=[identifier]&key=[redmine_repository_API_key]"
+      * project_id = Redmine project identifier
+      * key = Redmine repository API key
+
+   Example:
+
+   https://redmine.example.com/gitolite_hook?project_id=test_project&key=j2g7ks9341hjsdk
+
+   That's it. Gitlab will now send a HTTP POST to the Redmine Gitlab Hook plugin whenever changes are pushed to Gitlab. The plugin then takes care of pulling the changes to the local repository and updating the Redmine database with them.
+
+B. Gitolite
+
+   1. Login as gitolite user on your gitolite server
+   2. Add hooks (see redmine_gitolite_hook/extra/hooks)
+      * post-receive
+      * post-receive.redmine
+      to /var/lib/gitolite/.gitolite/hooks/common/ (path can differ)
+   3. Open this hooks and read the code
+      * Fill out the variables in post-receive.redmine:
+         HOOK_URL=gitolite_hook
+         FETCH_URL=sys/fetch_changesets
+         LOG=/var/lib/gitolite/.gitolite/logs/post-receive.log
+      * If used HTTP basic auth, you can set it for example with
+         REDMINE_HTTP_BASIC_AUTH = username:password
+      * Default values
+         DEFAULT_REDMINE_KEY=your_redmine_repository_API_key
+         DEFAULT_REDMINE_SERVER=https://redmine.example.com
+         DEFAULT_REDMINE_PROJECT_ID=$GL_REPO
+      * This is required if you use self signed certificates
+         DEFAULT_CURL_IGNORE_SECURITY_CFG="true"
+   4. Give right permissions to the hooks 
+      * $ chmod 0750 post-receive* 
+   5. Edit file /var/lib/gitolite/.gitolite/conf/gitolite.conf (path can differ) and add on every repo
+      * config hooks.redmine_gitolite.projectid = [project_id]
+   6. Ohter config possibilities
+      * config hooks.redmine_gitolite.curlignoresecurity = "true" (or "false")
+      * config hooks.redmine_gitolite.server = [redmine_server_url]
+      * config hooks.redmine_gitolite.key = [redmine_repository_API_key]
 
 
 == Assumptions
 
 * Redmine 2.x running on a *nix-like system. Older versions of redmine will not work.
 * Git 1.5 or higher available on the commandline. Also supports Git 1.6 repositories which are mirrored with the new "clone --mirror" command (default: off, please turn on in options when new mirror command was used).
-
-
-== License
-
-Copyright (c) 2009 Jakob Skjerning
-
-Permission is hereby granted, free of charge, to any person
-obtaining a copy of this software and associated documentation
-files (the "Software"), to deal in the Software without
-restriction, including without limitation the rights to use,
-copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the
-Software is furnished to do so, subject to the following
-conditions:
-
-The above copyright notice and this permission notice shall be
-included in all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
-OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
-HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
-WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
-OTHER DEALINGS IN THE SOFTWARE.
