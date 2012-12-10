@@ -1,6 +1,6 @@
-= Redmine Github Hook
+= Redmine Gitolite Hook
 
-This plugin allows you to update your local Git repositories in Redmine when changes have been pushed to Github.
+This plugin allows you to update your local Git repositories in Redmine when changes have been pushed to Gitolite.
 
 == Description
 
@@ -14,10 +14,10 @@ That approach works perfectly fine, but is a bit heavy-handed and cumbersome. Th
 == Installation
 
 1. Installing the plugin
-   1. Install the json gem <http://json.rubyforge.org/> on the machine where Redmine is running.
-   2. Follow the plugin installation procedure at http://www.redmine.org/wiki/redmine/Plugins.
-   3. Restart your Redmine.
-   4. If you already have a local Git repository set up and working from Redmine go to step 3, otherwise continue at step 2.
+   1. Follow the plugin installation procedure at http://www.redmine.org/wiki/redmine/Plugins.
+   2. Restart your Redmine.
+   3. If you already have a local Git repository set up and working from Redmine go to step 3, otherwise continue at step 2.
+2. Adding a Git repository to a project (note, this should work whether you want to use Redmine Github Hook or not). Simply follow the instructions at http://www.redmine.org/wiki/redmine/HowTo_keep_in_sync_your_git_repository_for_redmine . If the repository was cloned with "clone --mirror" please turn on the option "all_branches" in the plugin config page!
 
 2. Adding a Git repository to a project (note, this should work whether you want to use Redmine Github Hook or not). Simplyfollow the instructions at http://www.redmine.org/wiki/redmine/HowTo_keep_in_sync_your_git_repository_for_redmine
 
