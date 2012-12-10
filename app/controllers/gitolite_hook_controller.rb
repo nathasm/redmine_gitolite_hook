@@ -1,39 +1,50 @@
 require 'json'
 
-class GithubHookController < ApplicationController
+class GitoliteHookController < ActionController::Base
 
-  skip_before_filter :verify_authenticity_token, :check_if_login_required
+  before_filter :check_enabled
 
   def index
     if request.post?
       repository = find_repository
 
-      # Fetch the changes from Github
+      # Fetch the changes from Gitolite
       update_repository(repository)
 
       # Fetch the new changesets into Redmine
       repository.fetch_changesets
     end
 
-    render(:text => 'OK')
+    render(:text => 'OK\n')
   end
+
+  protected
+
+  def check_enabled
+    User.current = nil
+    unless Setting.sys_api_enabled? && params[:key].to_s == Setting.sys_api_key
+      render :text => 'Access denied. Repository management WS is disabled or key is invalid.', :status => 403
+      return false
+    end
+  end
+
 
   private
 
   # Executes shell command. Returns true if the shell command exits with a success status code
   def exec(command)
-    logger.debug { "GithubHook: Executing command: '#{command}'" }
+    logger.debug { "GitoliteHook: Executing command: '#{command}'" }
 
     # Get a path to a temp file
-    logfile = Tempfile.new('github_hook_exec')
+    logfile = Tempfile.new('gitolite_hook_exec')
     logfile.close
 
     success = system("#{command} > #{logfile.path} 2>&1")
     output_from_command = File.readlines(logfile.path)
     if success
-      logger.debug { "GithubHook: Command output: #{output_from_command.inspect}"}
+      logger.debug { "GitoliteHook: Command output: #{output_from_command.inspect}"}
     else
-      logger.error { "GithubHook: Command '#{command}' didn't exit properly. Full output: #{output_from_command.inspect}"}
+      logger.error { "GitoliteHook: Command '#{command}' didn't exit properly. Full output: #{output_from_command.inspect}"}
     end
 
     return success
@@ -47,8 +58,8 @@ class GithubHookController < ApplicationController
 
   # Fetches updates from the remote repository
   def update_repository(repository)
-    all_branches = Setting.plugin_redmine_github_hook[:all_branches]
-	all_branches = false if not all_branches
+    all_branches = Setting.plugin_redmine_gitolite_hook[:all_branches]
+    all_branches = false if not all_branches
     if all_branches != "yes"
 	  command = git_command('fetch --all', repository)
       exec(command)
