@@ -4,7 +4,7 @@ This plugin allows you to update your local Git repositories in Redmine when cha
 
 == Description
 
-Redmine <http://redmine.org> has supported Git repositories for a long time, allowing you to browse your code and view your changesets directly in Redmine. For this purpose, Redmine relies on local clones of the Git repositories.
+Redmine http://redmine.org has supported Git repositories for a long time, allowing you to browse your code and view your changesets directly in Redmine. For this purpose, Redmine relies on local clones of the Git repositories.
 
 If your shared repository is on a remote machine - for example on Github - this unfortunately means a bit of legwork to keep the local, Redmine-accessible repository up-to-date. The common approach is to set up a cronjob that pulls in any changes with regular intervals and updates Redmine with them.
 
@@ -50,7 +50,7 @@ B. Gitolite
          FETCH_URL=sys/fetch_changesets
          LOG=/var/lib/gitolite/.gitolite/logs/post-receive.log
       * If used HTTP basic auth, you can set it for example with
-         REDMINE_HTTP_BASIC_AUTH = username:password
+         REDMINE_HTTP_BASIC_AUTH=username:password
       * Default values
          DEFAULT_REDMINE_KEY=your_redmine_repository_API_key
          DEFAULT_REDMINE_SERVER=https://redmine.example.com
@@ -65,6 +65,8 @@ B. Gitolite
       * config hooks.redmine_gitolite.curlignoresecurity = "true" (or "false")
       * config hooks.redmine_gitolite.server = [redmine_server_url]
       * config hooks.redmine_gitolite.key = [redmine_repository_API_key]
+   7. Reload gitolite with
+      * gl-setup ~/[PUBLICKEY].pub
 
 
 == Assumptions

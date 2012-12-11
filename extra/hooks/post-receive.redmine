@@ -1,17 +1,13 @@
-#!/bin/sh
+#!/usr/bin/env bash
 
 HOOK_URL=gitolite_hook
 FETCH_URL=sys/fetch_changesets
-LOG=/home/git/logs/post-receive.log
-# If used HTTP basic auth, you can set it for example with
-# REDMINE_HTTP_BASIC_AUTH = username:password
-REDMINE_HTTP_BASIC_AUTH=""
+LOG=/var/lib/gitolite/.gitolite/logs/post-receive.log
+REDMINE_HTTP_BASIC_AUTH="redmine@phlegx.com:L3n_gfPF-y}GWOIk+mD4"
 
-
-DEFAULT_REDMINE_KEY=your_redmine_repository_API_key
-DEFAULT_REDMINE_SERVER=https://redmine.example.com
+DEFAULT_REDMINE_KEY=gfUNLpbTwAWhyZH4UbQ1
+DEFAULT_REDMINE_SERVER=https://redmine.phlegx.net
 DEFAULT_REDMINE_PROJECT_ID=$GL_REPO
-# This is required if you use self signed certificates
 DEFAULT_CURL_IGNORE_SECURITY_CFG="true"
 
 KEY=$(git config hooks.redmine_gitolite.key 2>/dev/null)
@@ -41,27 +37,20 @@ esac
 if [ -z "$REDMINE_HTTP_BASIC_AUTH" ]; then
     BASI_AUTH=" "
 else
-    BASIC_AUTH=" --user \"$REDMINE_HTTP_BASIC_AUTH\""
+    BASIC_AUTH="--user $REDMINE_HTTP_BASIC_AUTH"
 fi
 
 REDMINE_PROJECT_ID=$(git config hooks.redmine_gitolite.projectid 2>/dev/null)
 if [ -z "$REDMINE_PROJECT_ID" ]; then
   echo "No redmine project id configured."
 else
-  echo
+  echo "Inform Redmine"
   echo "Notifying Redmine (${REDMINE_SERVER}) about changes to this repo (${GL_REPO} => ${REDMINE_PROJECT_ID})"
-  echo
-
-  # Read from stdin
-  while read old new refname; do
-      echo "Hitting the Redmine Gitolite hook for $old $new $refname"
-      echo -n "Response: "
-      curl -X POST $CURL_IGNORE_SECURITY $BASIC_AUTH -S -s -d "oldrev=$old&newrev=$new&refname=$refname&user=$GL_USER" "$REDMINE_SERVER/$HOOK_URL?project_id=$REDMINE_PROJECT_ID&key=$KEY"
-      echo ""
-      echo ""
-      echo "Hitting the Redmine fetch changesets URL"
-      curl -X POST -S -s $CURL_IGNORE_SECURITY $BASIC_AUTH "$REDMINE_SERVER/$FETCH_URL?id=$REDMINE_PROJECT_ID&key=$KEY"
-      echo ""
-  done
+  #while read oldrev newrev refname; do
+    echo "Hitting the Redmine Gitolite hook for $old $new $refname"
+    curl -X POST $CURL_IGNORE_SECURITY $BASIC_AUTH -S -s -d "oldrev=$oldrev&newrev=$newrev&refname=$refname&user=$GL_USER" "$REDMINE_SERVER/$HOOK_URL?project_id=$REDMINE_PROJECT_ID&key=$KEY"
+    echo "Hitting the Redmine fetch changesets URL"
+    curl -S -s $CURL_IGNORE_SECURITY $BASIC_AUTH "$REDMINE_SERVER/$FETCH_URL?id=$REDMINE_PROJECT_ID&key=$KEY"
+  #done
 fi
 
