@@ -2,7 +2,7 @@
 
 HOOK_URL=gitolite_hook
 FETCH_URL=sys/fetch_changesets
-LOG=/var/lib/gitolite/.gitolite/logs/post-receive.log
+LOG=/home/git/.gitolite/logs/post-receive.log
 REDMINE_HTTP_BASIC_AUTH="redmine@phlegx.com:L3n_gfPF-y}GWOIk+mD4"
 
 DEFAULT_REDMINE_KEY=gfUNLpbTwAWhyZH4UbQ1
